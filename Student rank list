@@ -1,0 +1,221 @@
+from abc import ABC, abstractmethod
+
+
+
+class Evaluation(ABC):
+
+    @abstractmethod
+    def calculate_grade(self):
+        pass
+
+
+
+class Person:
+
+    def __init__(self, name, age):
+        self.__name = name
+        self.__age = age
+
+    
+    def get_name(self):
+        return self.__name
+
+    def get_age(self):
+        return self.__age
+
+
+class Student(Person, Evaluation):
+
+    student_count = 0
+
+    def __init__(self, name, age, roll_no, mark1, mark2, mark3):
+        super().__init__(name, age)
+
+        self.roll_no = roll_no
+        self.mark1 = mark1
+        self.mark2 = mark2
+        self.mark3 = mark3
+
+        Student.student_count += 1
+
+    def total_marks(self):
+        return self.mark1 + self.mark2 + self.mark3
+
+   
+    def average_marks(self):
+        return self.total_marks() / 3
+
+   
+    def calculate_grade(self):
+        average = self.average_marks()
+
+        if average >= 90:
+            return "A+"
+        elif average >= 80:
+            return "A"
+        elif average >= 70:
+            return "B"
+        elif average >= 60:
+            return "C"
+        elif average >= 50:
+            return "D"
+        else:
+            return "F"
+
+    
+    def display(self):
+        print("\nName       :", self.get_name())
+        print("Age        :", self.get_age())
+        print("Roll No    :", self.roll_no)
+        print("Marks      :", self.mark1, self.mark2, self.mark3)
+        print("Total      :", self.total_marks())
+        print("Average    :", round(self.average_marks(), 2))
+        print("Grade      :", self.calculate_grade())
+
+    def __gt__(self, other):
+        return self.total_marks() > other.total_marks()
+
+    @staticmethod
+    def validate_marks(mark):
+        return 0 <= mark <= 100
+
+   
+    @classmethod
+    def show_student_count(cls):
+        print("\nTotal Number of Students :", cls.student_count)
+
+
+
+class Sports:
+
+    def __init__(self, sports_score=0):
+        self.sports_score = sports_score
+
+    def display_sports(self):
+        print("Sports Score :", self.sports_score)
+
+
+
+class Result(Student, Sports):
+
+    def __init__(self, name, age, roll_no, mark1, mark2, mark3,
+                 sports_score=0):
+
+        Student.__init__(
+            self, name, age, roll_no, mark1, mark2, mark3
+        )
+
+        Sports.__init__(self, sports_score)
+
+    def final_score(self):
+        
+        return self.total_marks() + self.sports_score
+
+    
+    def display(self):
+        super().display()
+        self.display_sports()
+        print("Final Score :", self.final_score())
+
+
+
+
+students = []
+
+try:
+    n = int(input("Enter number of students: "))
+
+    if n <= 0:
+        print("Number of students must be greater than 0.")
+
+    else:
+
+        for i in range(n):
+
+            print("\n--- Enter Student", i + 1, "Details ---")
+
+            name = input("Enter name: ")
+            age = int(input("Enter age: "))
+            roll_no = int(input("Enter roll number: "))
+
+           
+            while True:
+                mark1 = int(input("Enter mark for Subject 1: "))
+
+                if Student.validate_marks(mark1):
+                    break
+                else:
+                    print("Invalid mark! Enter marks between 0 and 100.")
+
+            while True:
+                mark2 = int(input("Enter mark for Subject 2: "))
+
+                if Student.validate_marks(mark2):
+                    break
+                else:
+                    print("Invalid mark! Enter marks between 0 and 100.")
+
+            while True:
+                mark3 = int(input("Enter mark for Subject 3: "))
+
+                if Student.validate_marks(mark3):
+                    break
+                else:
+                    print("Invalid mark! Enter marks between 0 and 100.")
+
+            sports_score = int(input("Enter sports score: "))
+
+            student = Result(
+                name,
+                age,
+                roll_no,
+                mark1,
+                mark2,
+                mark3,
+                sports_score
+            )
+
+            students.append(student)
+
+       
+        print("\n\n========== STUDENT DETAILS ==========")
+
+        for student in students:
+            student.display()
+
+        students.sort(
+            key=lambda student: student.total_marks(),
+            reverse=True
+        )
+
+        
+        print("\n\n========== RANK LIST ==========")
+
+        for rank, student in enumerate(students, start=1):
+
+            print(
+                "Rank :", rank,
+                "| Roll No :", student.roll_no,
+                "| Name :", student.get_name(),
+                "| Total :", student.total_marks(),
+                "| Average :", round(student.average_marks(), 2),
+                "| Grade :", student.calculate_grade()
+            )
+
+       
+        if len(students) >= 2:
+
+            print("\n========== COMPARISON ==========")
+
+            if students[0] > students[1]:
+                print(
+                    students[0].get_name(),
+                    "has higher marks than",
+                    students[1].get_name()
+                )
+
+        Student.show_student_count()
+
+
+except ValueError:
+    print("Invalid input! Please enter numbers where required.")
